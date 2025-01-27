@@ -6,11 +6,6 @@ class CRUDProduct{
    
    private static size: number =0;
 
-   constructor(){
-      CRUDProduct.products.set(1, {'title':'milk','decription':'dairy product','price':14});
-      CRUDProduct.size++;
-   }
-
    // CRUD Create
    public static async insert(request:any, response:any){
     try{
@@ -20,7 +15,8 @@ class CRUDProduct{
         console.log("produkttitlen = " + product.title);
 
         // (2) Vi vil finde nummeret på næste produkt som autonummer
-        let no:number = CRUDProduct.size + 1; 
+        CRUDProduct.size++;
+        let no:number = CRUDProduct.size; 
         // lidt debug...
         console.log("det næste produkt-id er = " + no);
 
