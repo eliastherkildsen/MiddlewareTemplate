@@ -1,4 +1,4 @@
-import {routes} from './0_routes/routes.js';
+import {routes} from './routes/routes.js';
 
 
 

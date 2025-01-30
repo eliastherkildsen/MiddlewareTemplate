@@ -1,4 +1,4 @@
-import { IProduct } from '../3_models/Product.js';
+import { IProduct } from '../models/Product.js';
 
 class CRUDProduct{
    // En mockup af en database (in memory) - se REDIS senere
