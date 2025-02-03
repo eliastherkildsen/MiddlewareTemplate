@@ -21,10 +21,17 @@ routes.use(bodyParser.json())
 
 // File uploads.
 routes.post('/api/upload', (req, res) => {
-    // Log the files to the console
-    console.log(req.files);
+    // Get the file that was set to our field named "image"
+    const { image } = req.files;
 
-    // All good
+    // If no image submitted, exit
+    if (!image) return res.sendStatus(400);
+
+    // Move the uploaded image to our upload folder
+    if ("mv" in image) {
+        image.mv('./upload/' + image.name);
+    }
+
     res.sendStatus(200);
 });
 
