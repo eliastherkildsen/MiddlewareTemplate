@@ -1,0 +1,20 @@
+name: buildAction.yml
+on:
+  push:
+    branches:
+      - main
+      - master
+      - origin
+
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: build action
+        run: npm run build
+
