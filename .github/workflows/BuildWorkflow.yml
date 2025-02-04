@@ -1,0 +1,18 @@
+name: Builder template
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  intergration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: builder
+        run: npm run build
