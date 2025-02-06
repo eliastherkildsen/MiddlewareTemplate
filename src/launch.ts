@@ -3,7 +3,7 @@ import {routes} from './routes/routes.js';
 
 
 
-const port = 3000;
+const port = 3003;
 
 
 const server = routes.listen(port, () =>{

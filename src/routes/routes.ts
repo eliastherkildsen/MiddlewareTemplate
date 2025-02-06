@@ -1,11 +1,13 @@
-import * as dotenv from 'dotenv';
+import  * as dotenv from 'dotenv';
 import cors from 'cors';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { CRUDProduct } from '../endpoints/CRUDProducts.js';
-import { CRUDUser } from '../endpoints/CRUDUser.js';
+import { UserEndpoint } from '../endpoints/UserEndpoint.js';
 import fileUpload from "express-fileupload";
-import {TokenSigningService} from "../security/tokenSigningService.js";
+import {TokenSigningService} from "../security/Token/tokenSigningService.js";
+import ITokenService from "../InterfaceAdapters/ITokenService.js";
+import {IUser} from "../models/User";
 
 
 dotenv.config({ path: 'config/middleware.env' });
@@ -30,11 +32,23 @@ routes.post('/api/upload', (req, res) => {
 
     // Move the uploaded image to our upload folder
     if ("mv" in image) {
-        image.mv('./upload/' + image.name);
+        image.mv('upload\\' + image.name);
     }
 
     res.sendStatus(200);
 });
+
+routes.post('/api/login', (req, res) => {
+
+    const LOGIN_TOKEN_EXPIRED_TIME_SECONDS = 3600;
+
+    try {
+        const user : IUser = req.body
+        return new UserEndpoint(new TokenSigningService(process.env.TOKEN_SECRET, LOGIN_TOKEN_EXPIRED_TIME_SECONDS)).login(user, res)
+    } catch (err) {
+        return res.status(400).json({message: "user attributes"})
+    }
+})
 
 
 // Vores (eneste) endpoint som der kan postes til...
@@ -42,36 +56,37 @@ routes.post('/api/products',  (req:any,res:any) => {
     return CRUDProduct.insert(req,res);
 });
 
-// USERS
-routes.post('/api/users', (req:any,res:any) => {
-    return CRUDUser.post(req,res);
+// Get all men vi vil tjekke for at der er et korrekt auth token
+routes.get('/api/products', (req:any,res:any) => {
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({message: "Authorization header missing"});
+    }
+
+    // Forventet format: "Bearer <token>"
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({message: "Token missing in Authorization header"});
+    }
+
+    console.log(token);
+    const Tokenservice : ITokenService = new TokenSigningService(process.env.TOKEN_SECRET, 10);
+
+    let payload = {
+        "name": "Elias",
+    }
+
+    console.log(Tokenservice.generateToken(payload))
+
+
+    const isValid = Tokenservice.verifyToken(authHeader)
+    return isValid ? res.status(200).json({message: "Authenticated Login"}) : res.status(401).json({message: "Invalid token"});
+
+
 })
 
-routes.get('/api/users', (req:any,res:any) => {
-    return CRUDUser.getAll(req,res);
-})
 
-routes.get('/api/users/:id', (req:any,res:any) => {
-    return CRUDUser.get(req,res);
-})
-
-routes.delete('/api/users/:id', (req:any,res:any) => {
-    return CRUDUser.delete(req,res);
-})
-
-// Samler alle andre routes op...
-routes.get('*', (req:any,res:any) =>{
-    return res.status(404).send('no such route');
-});
-
-const TokenService = new TokenSigningService(process.env.TOKEN_SECRET);
-
-const claim = {
-    "name" : "elias"
-}
-
-let signed_token = TokenService.signToken(claim);
-console.log(signed_token);
-console.log(TokenService.isAuthenticated(signed_token));
 
 export {routes}

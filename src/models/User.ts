@@ -1,13 +1,9 @@
 interface IUser {
     username: string;
-    email: string;
     password: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
 }
 
-class User implements IUser {
-    public password: string;
-    public username: string;
-    public email: string;
-}
-
-export { User, IUser };
+export { IUser };
