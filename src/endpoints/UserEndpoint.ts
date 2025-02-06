@@ -1,15 +1,15 @@
 import {IUser} from "../models/User";
-import ITokenService from "../InterfaceAdapters/ITokenService";
-import {TokenSigningService} from "../security/Token/tokenSigningService";
+import ITokenService from "../InterfaceAdapters/ITokenProvider";
+import ITokenProvider from "../InterfaceAdapters/ITokenProvider";
 
 export class UserEndpoint {
 
     private users : Map<string, IUser>
-    private tokenService : ITokenService;
+    private _tokenProvider : ITokenService;
 
-    constructor(Tokenservice : ITokenService) {
+    constructor(TokenProvider : ITokenProvider) {
         this.users = new Map<string, IUser>();
-        this.tokenService = Tokenservice;
+        this._tokenProvider = TokenProvider;
         this.users.set("elias", {
             "username": "elias",
             "password": "123"
@@ -27,7 +27,7 @@ export class UserEndpoint {
             )
         }
 
-        const token = this.tokenService.generateToken(user);
+        const token = this._tokenProvider.generateToken(user);
 
         return res.status(201).json({
             "massage" : "Login success",

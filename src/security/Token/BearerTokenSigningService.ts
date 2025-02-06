@@ -1,15 +1,16 @@
 import jwt from "jsonwebtoken";
-import ITokenService from "../../InterfaceAdapters/ITokenService";
+import ITokenProvider from "../../InterfaceAdapters/ITokenProvider";
 
-export class TokenSigningService implements ITokenService{
+export class BearerTokenSigningService implements ITokenProvider{
 
     private readonly _private_key: string;
     private readonly _exportation_time_seconds: number;
-    private readonly _signing_algorithm: jwt.Algorithm = 'HS256';
+    private readonly _signing_algorithm: jwt.Algorithm;
 
-    constructor(private_key: string, exportation_time: number) {
+    constructor(private_key: string, exportation_time: number, algorithm: jwt.Algorithm) {
         this._private_key = private_key;
         this._exportation_time_seconds = exportation_time;
+        this._signing_algorithm = algorithm;
     }
 
     public decodeToken(token: string){
@@ -17,7 +18,7 @@ export class TokenSigningService implements ITokenService{
     }
 
     public verifyToken (authHeader: string): boolean {
-        return TokenSigningService.verifyBearerToken(authHeader, this._private_key);
+        return BearerTokenSigningService.verifyBearerToken(authHeader, this._private_key);
     }
 
     public generateToken (payload : object ) : string {
