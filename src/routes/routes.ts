@@ -5,7 +5,8 @@ import bodyParser from 'body-parser';
 import { CRUDProduct } from '../endpoints/CRUDProducts.js';
 import { CRUDUser } from '../endpoints/CRUDUser.js';
 import fileUpload from "express-fileupload";
-import {TokenSigningService} from "../security/tokenSigningService.js";
+import {BearerTokenSigningService} from "../security/Token/BearerTokenSigningService.js";
+import {ITokenSigningService} from "../security/Token/ITokenSigningService.js";
 
 
 dotenv.config({ path: 'config/middleware.env' });
@@ -64,14 +65,17 @@ routes.get('*', (req:any,res:any) =>{
     return res.status(404).send('no such route');
 });
 
-const TokenService = new TokenSigningService(process.env.TOKEN_SECRET);
+
+const TokenService : ITokenSigningService = new BearerTokenSigningService(process.env.TOKEN_SECRET);
+
+console.log(process.env.TOKEN_SECRET)
 
 const claim = {
     "name" : "elias"
 }
 
 let signed_token = TokenService.signToken(claim);
-console.log(signed_token);
-console.log(TokenService.isAuthenticated(signed_token));
+console.table(signed_token);
+console.log(TokenService.validateToken(signed_token));
 
 export {routes}
