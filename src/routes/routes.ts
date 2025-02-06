@@ -1,17 +1,21 @@
-import * as dotenv from 'dotenv';
+import  * as dotenv from 'dotenv';
 import cors from 'cors';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { CRUDProduct } from '../endpoints/CRUDProducts.js';
-import { CRUDUser } from '../endpoints/CRUDUser.js';
+import { UserEndpoint } from '../endpoints/UserEndpoint.js';
 import fileUpload from "express-fileupload";
-import {BearerTokenSigningService} from "../security/Token/BearerTokenSigningService.js";
-import {ITokenSigningService} from "../security/Token/ITokenSigningService.js";
+import {IUser} from "../models/User";
+import ITokenProvider from "../InterfaceAdapters/ITokenProvider";
+import TokenFactory, {EProviders} from "../security/Token/TokenFactory.js";
 
 
 dotenv.config({ path: 'config/middleware.env' });
 
 const routes = express();
+const factory : ITokenProvider = TokenFactory.CreateFactory(EProviders.login_token, process.env.TOKEN_SECRET as string);
+
+
 
 routes.use(cors());
 routes.use(express.static('public'));
@@ -31,11 +35,23 @@ routes.post('/api/upload', (req, res) => {
 
     // Move the uploaded image to our upload folder
     if ("mv" in image) {
-        image.mv('./upload/' + image.name);
+        image.mv('upload\\' + image.name);
     }
 
     res.sendStatus(200);
 });
+
+routes.post('/api/login', (req, res) => {
+
+    try {
+
+        const user : IUser = req.body
+        return new UserEndpoint(factory).login(user, res)
+
+    } catch (err) {
+        return res.status(400).json({message: "user attributes"})
+    }
+})
 
 
 // Vores (eneste) endpoint som der kan postes til...
@@ -43,39 +59,7 @@ routes.post('/api/products',  (req:any,res:any) => {
     return CRUDProduct.insert(req,res);
 });
 
-// USERS
-routes.post('/api/users', (req:any,res:any) => {
-    return CRUDUser.post(req,res);
-})
+// Get all men vi vil tjekke for at der er et korrekt auth token
 
-routes.get('/api/users', (req:any,res:any) => {
-    return CRUDUser.getAll(req,res);
-})
-
-routes.get('/api/users/:id', (req:any,res:any) => {
-    return CRUDUser.get(req,res);
-})
-
-routes.delete('/api/users/:id', (req:any,res:any) => {
-    return CRUDUser.delete(req,res);
-})
-
-// Samler alle andre routes op...
-routes.get('*', (req:any,res:any) =>{
-    return res.status(404).send('no such route');
-});
-
-
-const TokenService : ITokenSigningService = new BearerTokenSigningService(process.env.TOKEN_SECRET);
-
-console.log(process.env.TOKEN_SECRET)
-
-const claim = {
-    "name" : "elias"
-}
-
-let signed_token = TokenService.signToken(claim);
-console.table(signed_token);
-console.log(TokenService.validateToken(signed_token));
 
 export {routes}

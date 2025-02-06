@@ -1,38 +1,40 @@
 import jwt from "jsonwebtoken";
-import {ITokenSigningService} from "./ITokenSigningService";
+import ITokenProvider from "../../InterfaceAdapters/ITokenProvider";
 
-export class BearerTokenSigningService implements ITokenSigningService {
+export class BearerTokenSigningService implements ITokenProvider{
 
-    private readonly private_key: string;
+    private readonly _private_key: string;
+    private readonly _exportation_time_seconds: number;
+    private readonly _signing_algorithm: jwt.Algorithm;
 
-    public constructor(private_key: string) {
-        this.private_key = private_key;
+    constructor(private_key: string, exportation_time: number, algorithm: jwt.Algorithm) {
+        this._private_key = private_key;
+        this._exportation_time_seconds = exportation_time;
+        this._signing_algorithm = algorithm;
     }
 
-    public validateToken(token: string): boolean {
-        return BearerTokenSigningService.verifyBearerToken(token, this.private_key);
+    public decodeToken(token: string){
+        return jwt.decode(token);
     }
 
-    public signToken(token: object) : string {
-        return jwt.sign(token, this.private_key, { algorithm: 'HS256' });
+    public verifyToken (authHeader: string): boolean {
+        return BearerTokenSigningService.verifyBearerToken(authHeader, this._private_key);
     }
 
+    public generateToken (payload : object ) : string {
+        return jwt.sign(payload, this._private_key, { algorithm : this._signing_algorithm, expiresIn: this._exportation_time_seconds});
+    }
 
-    private static verifyBearerToken(token: string, p_key: string): boolean {
+    private static verifyBearerToken(authorizationHeader: string, p_key : string): boolean {
+
+        let BearerToken = authorizationHeader.split(' ')[1];
 
         try {
-
-            let BearerToken = token.split(' ')[1];
             jwt.verify(BearerToken, p_key)
             return true;
         } catch (e) {
-            console.error(e);
             return false;
         }
-    }
 
-    public static containsAuthHeader (req: any): boolean {
-        return req.headers.c
     }
-
 }
