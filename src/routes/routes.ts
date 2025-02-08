@@ -7,19 +7,21 @@ import { UserEndpoint } from '../endpoints/UserEndpoint.js';
 import fileUpload from "express-fileupload";
 import {IUser} from "../models/User";
 import ITokenProvider from "../InterfaceAdapters/ITokenProvider";
-import TokenFactory, {EProviders} from "../security/Token/TokenFactory.js";
+import TokenProviderFactory, {EProviders} from "../Infrastructure/TokenService/TokenProviderFactory.js";
+import morganMiddleware from "../Infrastructure/Logger/morganMiddleware.js";
 
 
 dotenv.config({ path: 'config/middleware.env' });
 
 const routes = express();
-const factory : ITokenProvider = TokenFactory.CreateFactory(EProviders.login_token, process.env.TOKEN_SECRET as string);
+const LoginToken : ITokenProvider = TokenProviderFactory.CreateFactory(EProviders.login_token, process.env.TOKEN_SECRET as string);
 
 
 
 routes.use(cors());
 routes.use(express.static('public'));
 routes.use(fileUpload())
+routes.use(morganMiddleware)
 
 routes.use(bodyParser.urlencoded({ extended: false }));
 routes.use(bodyParser.json())
@@ -46,20 +48,26 @@ routes.post('/api/login', (req, res) => {
     try {
 
         const user : IUser = req.body
-        return new UserEndpoint(factory).login(user, res)
+        return new UserEndpoint(LoginToken).login(user, res)
 
     } catch (err) {
-        return res.status(400).json({message: "user attributes"})
+        return res.status(400).json({message: "malformed user attributes"})
     }
 })
 
+routes.post('/api/register', (req, res) => {
+    try {
+        const user : IUser = req.body
+        return new UserEndpoint(LoginToken).register(user, res)
+    } catch (err) {
+        return res.status(400).json({message: "malformed user attributes"})
+    }
+})
 
 // Vores (eneste) endpoint som der kan postes til...
 routes.post('/api/products',  (req:any,res:any) => {
     return CRUDProduct.insert(req,res);
 });
-
-// Get all men vi vil tjekke for at der er et korrekt auth token
 
 
 export {routes}

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import ITokenProvider from "../../InterfaceAdapters/ITokenProvider";
+import ITokenProvider from "../../InterfaceAdapters/ITokenProvider.js";
 
 export class BearerTokenSigningService implements ITokenProvider{
 

@@ -4,21 +4,16 @@ import ITokenProvider from "../InterfaceAdapters/ITokenProvider";
 
 export class UserEndpoint {
 
-    private users : Map<string, IUser>
+    private static users : Map<string, IUser> = new Map<string, IUser>
     private _tokenProvider : ITokenService;
 
-    constructor(TokenProvider : ITokenProvider) {
-        this.users = new Map<string, IUser>();
+    public constructor(TokenProvider : ITokenProvider) {
         this._tokenProvider = TokenProvider;
-        this.users.set("elias", {
-            "username": "elias",
-            "password": "123"
-        })
     }
 
     public login(user : IUser, res : any) {
 
-        const isValid = this.isLoginValid(user);
+        const isValid = this.authenticateUser(user);
         if (!isValid) {
             return res.status(401).json(
                 {
@@ -35,9 +30,29 @@ export class UserEndpoint {
         })
     }
 
-    private isLoginValid(user : IUser) : boolean {
+    public register(user : IUser, res : any) {
+        if (this.isUserExist(user)) {
+            return res.status(409).json(
+                {
+                    "message": "User already exist"
+                }
+            )
+        }
 
-        const userFound = this.users.get(user.username);
+        UserEndpoint.users.set(user.username, user);
+        return res.status(201).json({
+            "massage" : "User created",
+            "user" : user
+        })
+    }
+
+    private isUserExist(user : IUser) : boolean {
+        return UserEndpoint.users.has(user.username);
+    }
+
+    private authenticateUser(user : IUser) : boolean {
+
+        const userFound = UserEndpoint.users.get(user.username);
         if (!userFound) {
             return false;
         }

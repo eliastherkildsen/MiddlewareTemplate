@@ -1,16 +1,18 @@
-import ITokenProvider from "../../InterfaceAdapters/ITokenProvider";
+import ITokenProvider from "../../InterfaceAdapters/ITokenProvider.js";
 import {BearerTokenSigningService} from "./BearerTokenSigningService.js";
 
 export enum EProviders {
     "login_token"
 }
 
-export default class TokenFactory {
+export default class TokenProviderFactory {
+
+    private static readonly LOGIN_TOKEN_EXPIRATION_TIME = 3600;
 
     public static CreateFactory(provider: EProviders, secretKey: string) : ITokenProvider {
 
         if (provider == EProviders.login_token) {
-            return new BearerTokenSigningService(secretKey, 3600, "HS256")
+            return new BearerTokenSigningService(secretKey, TokenProviderFactory.LOGIN_TOKEN_EXPIRATION_TIME, "HS256")
         }
 
         // fail safe...
