@@ -6,3 +6,6 @@ dist
 
 # IDE
 .idea
+
+# logging
+logs

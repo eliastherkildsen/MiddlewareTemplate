@@ -1,8 +1,9 @@
 # MiddlewareTemplate
 
-<p> I Visual Studio Code: </p>
+## Getting started
+1. Selected the desired port in 'launch.ts'
 
-<p> 1: npm install (for at hente de nødvendige pakker) </p>
-<p> 2: npm run build (for at compile) </p>
-<p> 3: npm run start (for at launche serveren - kører på port 3000) </p>
- 
+2. build the project<br>
+`npm run build`
+3. run the application<br>
+`npm run start`
