@@ -1,9 +1,9 @@
-import  * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import cors from 'cors';
 import express from 'express';
 import bodyParser from 'body-parser';
-import { CRUDProduct } from '../endpoints/CRUDProducts.js';
-import { UserEndpoint } from '../endpoints/UserEndpoint.js';
+import {CRUDProduct} from '../endpoints/CRUDProducts.js';
+import {UserEndpoint} from '../endpoints/UserEndpoint.js';
 import fileUpload from "express-fileupload";
 import {IUser} from "../models/User";
 import ITokenProvider from "../InterfaceAdapters/ITokenProvider";
@@ -14,7 +14,12 @@ import morganMiddleware from "../Infrastructure/Logger/morganMiddleware.js";
 dotenv.config({ path: 'config/middleware.env' });
 
 const routes = express();
-const LoginToken : ITokenProvider = TokenProviderFactory.CreateFactory(EProviders.login_token, process.env.TOKEN_SECRET as string);
+const LoginToken : ITokenProvider = TokenProviderFactory.CreateFactory({
+    "provider": EProviders.login_token,
+    "audience": process.env.AUDIENCE,
+    "issuer": process.env.ISSUER,
+    "secretKey": process.env.TOKEN_SCRECT as string,
+});
 
 
 
