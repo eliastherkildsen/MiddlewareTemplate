@@ -29,7 +29,8 @@ export default class TokenProviderFactory {
                 throw new Error("Audience has not been defined. please pass the audience in the constructor.")
             }
 
-            return new BearerTokenSigningService(configuration.secretKey, TokenProviderFactory.LOGIN_TOKEN_EXPIRATION_TIME, "HS256", configuration.issuer, configuration.audience)
+            return new BearerTokenSigningService(configuration.secretKey, TokenProviderFactory.LOGIN_TOKEN_EXPIRATION_TIME,
+                "HS256", configuration.issuer, configuration.audience)
         }
 
         // fail safe...

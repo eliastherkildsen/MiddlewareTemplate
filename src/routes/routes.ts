@@ -14,6 +14,7 @@ import morganMiddleware from "../Infrastructure/Logger/morganMiddleware.js";
 dotenv.config({ path: 'config/middleware.env' });
 
 const routes = express();
+
 const LoginToken : ITokenProvider = TokenProviderFactory.CreateFactory({
     "provider": EProviders.login_token,
     "audience": process.env.AUDIENCE,
